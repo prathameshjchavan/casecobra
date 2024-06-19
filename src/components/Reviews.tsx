@@ -167,6 +167,7 @@ const Reviews = () => {
       <Image
         aria-hidden={true}
         src="/what-people-are-buying.png"
+        priority={true}
         alt=""
         width={193}
         height={143}
