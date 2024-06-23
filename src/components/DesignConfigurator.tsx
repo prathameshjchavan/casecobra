@@ -1,5 +1,10 @@
+"use client";
+
 import Image from "next/image";
 import { AspectRatio } from "./ui/aspect-ratio";
+import { cn } from "@/lib/utils";
+import { Rnd } from "react-rnd";
+import HandleComponent from "./HandleComponent";
 
 interface DesignConfiguratorProps {
   configId: string;
@@ -23,12 +28,43 @@ const DesignConfigurator = ({
             <Image
               src="/phone-template.png"
               alt="phone image"
-              width={896}
-              height={1831}
+              fill
               className="pointer-events-none z-50 select-none"
             />
           </AspectRatio>
+          <div className="absolute bottom-px left-[3px] right-[3px] top-px z-40 rounded-[32px] shadow-[0_0_0_99999px_rgba(229,231,235,0.6)]" />
+          <div
+            className={cn(
+              "absolute inset-x-[3px] inset-y-px rounded-[32px]",
+              `bg-blue-950`,
+            )}
+          />
         </div>
+        <Rnd
+          default={{
+            x: 150,
+            y: 205,
+            height: imageDimentions.height / 4,
+            width: imageDimentions.width / 4,
+          }}
+          lockAspectRatio
+          resizeHandleComponent={{
+            bottomRight: <HandleComponent />,
+            bottomLeft: <HandleComponent />,
+            topRight: <HandleComponent />,
+            topLeft: <HandleComponent />,
+          }}
+          className="absolute z-20 border-[3px] border-primary"
+        >
+          <div className="relative h-full w-full">
+            <Image
+              src={imageUrl}
+              fill
+              alt="your image"
+              className="pointer-events-none"
+            />
+          </div>
+        </Rnd>
       </div>
     </div>
   );
