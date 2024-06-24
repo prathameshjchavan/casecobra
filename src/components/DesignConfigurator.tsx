@@ -8,8 +8,16 @@ import HandleComponent from "./HandleComponent";
 import { ScrollArea } from "./ui/scroll-area";
 import { Radio, RadioGroup } from "@headlessui/react";
 import { useState } from "react";
-import { COLORS } from "@/validators/option-validator";
+import { COLORS, MODELS } from "@/validators/option-validator";
 import { Label } from "./ui/label";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { Button } from "./ui/button";
+import { Check, ChevronsUpDown } from "lucide-react";
 
 interface DesignConfiguratorProps {
   configId: string;
@@ -22,15 +30,13 @@ const DesignConfigurator = ({
   imageUrl,
   imageDimentions,
 }: DesignConfiguratorProps) => {
-  const [options, setOptions] = useState<{ color: (typeof COLORS)[number] }>({
+  const [options, setOptions] = useState<{
+    color: (typeof COLORS)[number];
+    model: (typeof MODELS.options)[number];
+  }>({
     color: COLORS[0],
+    model: MODELS.options[0],
   });
-
-  function addRingColor(isChecked: boolean, twColor: typeof COLORS[number]["tw"]) {
-    if (!isChecked) return "";
-
-    return twColor === "zinc-900" ? `ring-${twColor}` : `ring-${twColor.slice(0, -2)}00`;
-  }
 
   return (
     <div className="relative mb-20 mt-20 grid grid-cols-3 pb-20">
@@ -51,7 +57,7 @@ const DesignConfigurator = ({
           <div
             className={cn(
               "absolute inset-x-[3px] inset-y-px rounded-[32px]",
-              `bg-blue-950`,
+              `bg-${options.color.tw}`,
             )}
           />
         </div>
@@ -97,33 +103,81 @@ const DesignConfigurator = ({
             <div className="my-6 h-px w-full bg-zinc-200" />
 
             <div className="relative mt-4 flex h-full flex-col justify-between">
-              <RadioGroup
-                value={options.color}
-                onChange={(val) => {
-                  setOptions((prev) => ({ ...prev, color: val }));
-                }}
-              >
-                <Label>Color: {options.color.label}</Label>
-                <div className="mt-3 flex items-center space-x-3">
-                  {COLORS.map((color) => (
-                    <Radio value={color} key={color.label}>
-                      {({ checked }) => (
-                        <span
-                          className={
-                            `relative flex cursor-pointer items-center justify-center rounded-full border-2 border-transparent outline-none ring-2 ring-transparent ${addRingColor(checked, color.tw)}`}
-                        >
+              <div className="flex flex-col gap-6">
+                <RadioGroup
+                  value={options.color}
+                  onChange={(val) => {
+                    setOptions((prev) => ({ ...prev, color: val }));
+                  }}
+                >
+                  <Label>Color: {options.color.label}</Label>
+                  <div className="mt-3 flex items-center space-x-3">
+                    {COLORS.map((color) => (
+                      <Radio value={color} key={color.label}>
+                        {({ checked }) => (
                           <span
                             className={cn(
-                              `bg-${color.tw}`,
-                              "h-8 w-8 rounded-full border border-black border-opacity-10",
+                              "ring-none relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full border-2 border-transparent p-0.5 outline-none",
+                              {
+                                [`border-${color.tw}`]: checked,
+                              },
+                            )}
+                          >
+                            <span
+                              className={cn(
+                                `bg-${color.tw}`,
+                                "h-8 w-8 rounded-full border border-black border-opacity-10",
+                              )}
+                            />
+                          </span>
+                        )}
+                      </Radio>
+                    ))}
+                  </div>
+                </RadioGroup>
+
+                <div className="relative flex w-full flex-col gap-3">
+                  <Label>Model</Label>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className="w-full justify-between"
+                      >
+                        {options.model.label}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      {MODELS.options.map((model) => (
+                        <DropdownMenuItem
+                          key={model.label}
+                          className={cn(
+                            "flex cursor-default items-center gap-1 p-1.5 text-sm hover:bg-zinc-100",
+                            {
+                              "bg-zinc-100": model === options.model,
+                            },
+                          )}
+                          onClick={() => {
+                            setOptions((prev) => ({ ...prev, model }));
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              model === options.model
+                                ? "opacity-100"
+                                : "opacity-0",
                             )}
                           />
-                        </span>
-                      )}
-                    </Radio>
-                  ))}
+                          {model.label}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
-              </RadioGroup>
+              </div>
             </div>
           </div>
         </ScrollArea>
