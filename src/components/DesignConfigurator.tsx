@@ -26,6 +26,12 @@ const DesignConfigurator = ({
     color: COLORS[0],
   });
 
+  function addRingColor(isChecked: boolean, twColor: typeof COLORS[number]["tw"]) {
+    if (!isChecked) return "";
+
+    return twColor === "zinc-900" ? `ring-${twColor}` : `ring-${twColor.slice(0, -2)}00`;
+  }
+
   return (
     <div className="relative mb-20 mt-20 grid grid-cols-3 pb-20">
       <div className="relative col-span-2 flex h-[37.5rem] w-full max-w-4xl items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-gray-300 p-12 text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
@@ -103,10 +109,8 @@ const DesignConfigurator = ({
                     <Radio value={color} key={color.label}>
                       {({ checked }) => (
                         <span
-                          className={cn(
-                            "relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full border-2 border-transparent p-0.5 focus:outline-none focus:ring-0 active:outline-none active:ring-0",
-                            { [`border-${color.tw}`]: checked },
-                          )}
+                          className={
+                            `relative flex cursor-pointer items-center justify-center rounded-full border-2 border-transparent outline-none ring-2 ring-transparent ${addRingColor(checked, color.tw)}`}
                         >
                           <span
                             className={cn(
