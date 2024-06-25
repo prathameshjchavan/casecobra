@@ -2,13 +2,18 @@
 
 import Image from "next/image";
 import { AspectRatio } from "./ui/aspect-ratio";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { Rnd } from "react-rnd";
 import HandleComponent from "./HandleComponent";
 import { ScrollArea } from "./ui/scroll-area";
-import { Radio, RadioGroup } from "@headlessui/react";
-import { useState } from "react";
-import { COLORS, MODELS } from "@/validators/option-validator";
+import { Description, Radio, RadioGroup } from "@headlessui/react";
+import { Fragment, useState } from "react";
+import {
+  COLORS,
+  FINISHES,
+  MATERIALS,
+  MODELS,
+} from "@/validators/option-validator";
 import { Label } from "./ui/label";
 import {
   DropdownMenu,
@@ -32,10 +37,14 @@ const DesignConfigurator = ({
 }: DesignConfiguratorProps) => {
   const [options, setOptions] = useState<{
     color: (typeof COLORS)[number];
-    model: (typeof MODELS.options)[number];
+    model: (typeof MODELS)[number];
+    material: (typeof MATERIALS.options)[number];
+    finish: (typeof FINISHES.options)[number];
   }>({
     color: COLORS[0],
-    model: MODELS.options[0],
+    model: MODELS[0],
+    material: MATERIALS.options[0],
+    finish: FINISHES.options[0],
   });
 
   return (
@@ -150,7 +159,7 @@ const DesignConfigurator = ({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                      {MODELS.options.map((model) => (
+                      {MODELS.map((model) => (
                         <DropdownMenuItem
                           key={model.label}
                           className={cn(
@@ -177,6 +186,55 @@ const DesignConfigurator = ({
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
+
+                {[MATERIALS, FINISHES].map(
+                  ({ name, options: selectableOptions }) => (
+                    <RadioGroup
+                      key={name}
+                      value={options[name]}
+                      onChange={(val) => {
+                        setOptions((prev) => ({ ...prev, [name]: val }));
+                      }}
+                    >
+                      <Label>
+                        {name.charAt(0).toUpperCase() + name.slice(1)}
+                      </Label>
+                      <div className="mt-3 space-y-4">
+                        {selectableOptions.map((option) => (
+                          <Radio
+                            as={Fragment}
+                            key={option.value}
+                            value={option}
+                          >
+                            {({ checked, focus }) => (
+                              <span
+                                className={cn(
+                                  "relative block cursor-pointer rounded-lg border-2 border-zinc-200 bg-white px-6 py-4 shadow-sm outline-none ring-0 sm:flex sm:justify-between",
+                                  { "border-primary": checked || focus },
+                                )}
+                              >
+                                <span className="flex flex-col text-sm">
+                                  <Label className="font-medium text-gray-900">
+                                    {option.label}
+                                  </Label>
+                                  {option.description ? (
+                                    <Description className="block text-gray-500 sm:inline">
+                                      {option.description}
+                                    </Description>
+                                  ) : null}
+                                </span>
+
+                                <Description className="mt-2 flex text-sm sm:ml-4 sm:mt-0 sm:flex-col sm:text-right font-medium text-gray-900">
+                                  {formatPrice(option.price / 100)}
+                                </Description>
+                              </span>
+                            )}
+                          </Radio>
+                        ))}
+                      </div>
+                    </RadioGroup>
+                  ),
+                )}
               </div>
             </div>
           </div>
