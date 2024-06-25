@@ -22,7 +22,8 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { ArrowRight, Check, ChevronsUpDown } from "lucide-react";
+import { BASE_PRICE } from "@/config/products";
 
 interface DesignConfiguratorProps {
   configId: string;
@@ -224,7 +225,7 @@ const DesignConfigurator = ({
                                   ) : null}
                                 </span>
 
-                                <Description className="mt-2 flex text-sm sm:ml-4 sm:mt-0 sm:flex-col sm:text-right font-medium text-gray-900">
+                                <Description className="mt-2 flex text-sm font-medium text-gray-900 sm:ml-4 sm:mt-0 sm:flex-col sm:text-right">
                                   {formatPrice(option.price / 100)}
                                 </Description>
                               </span>
@@ -239,6 +240,24 @@ const DesignConfigurator = ({
             </div>
           </div>
         </ScrollArea>
+
+        <div className="h-16 w-full bg-white px-8">
+          <div className="h-px w-full bg-zinc-200" />
+          <div className="flex h-full w-full items-center justify-end">
+            <div className="flex w-full items-center gap-6">
+              <p className="whitespace-nowrap font-medium">
+                {formatPrice(
+                  (BASE_PRICE + options.finish.price + options.material.price) /
+                    100,
+                )}
+              </p>
+              <Button size="sm" className="w-full">
+                Continue
+                <ArrowRight className="ml-1.5 inline h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
