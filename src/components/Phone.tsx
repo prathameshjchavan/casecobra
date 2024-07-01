@@ -31,7 +31,7 @@ const Phone = ({ imgSrc, className, dark = false, ...props }: PhoneProps) => {
 
       <div className="absolute inset-0 -z-10">
         <Image
-          className="object-cover"
+          className="min-h-full min-w-full object-cover"
           width={896}
           height={1831}
           priority={true}

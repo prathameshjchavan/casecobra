@@ -20,7 +20,7 @@ const PreviewPage = async ({ searchParams }: PreviewPageProps) => {
 
   if (!configuration) return notFound();
 
-  return <DesignPreview />;
+  return <DesignPreview configuration={configuration} />;
 };
 
 export default PreviewPage;
