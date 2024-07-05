@@ -11,12 +11,16 @@ import { BASE_PRICE, PRODUCT_PRICES } from "@/config/products";
 import { Button } from "./ui/button";
 import { useMutation } from "@tanstack/react-query";
 import { createCheckoutSession } from "@/app/configure/preview/actions";
+import { useRouter } from "next/navigation";
+import { useToast } from "./ui/use-toast";
 
 interface DesignPreviewProps {
   configuration: Configuration;
 }
 
 const DesignPreview = ({ configuration }: DesignPreviewProps) => {
+  const router = useRouter();
+  const { toast } = useToast();
   const [showConfetti, setShowConfetti] = useState(false);
   const { color, model, finish, material } = configuration;
   const tw = COLORS.find(({ value }) => value === color)?.tw;
@@ -26,9 +30,20 @@ const DesignPreview = ({ configuration }: DesignPreviewProps) => {
     totalPrice += PRODUCT_PRICES.material.polycarbonate;
   if (finish === "textured") totalPrice += PRODUCT_PRICES.finish.textured;
 
-  const { mutate: submit } = useMutation({
+  const { mutate: createPaymentSession } = useMutation({
     mutationKey: ["get-checkout-session"],
-    mutationFn: async () => createCheckoutSession({ configId: "fef" }),
+    mutationFn: createCheckoutSession,
+    onSuccess: ({ url }) => {
+      if (url) router.push(url);
+      else throw new Error("Unable to retrieve payment URL");
+    },
+    onError: (error) => {
+      toast({
+        title: "Something went wrong",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
   });
 
   useEffect(() => {
@@ -125,7 +140,12 @@ const DesignPreview = ({ configuration }: DesignPreviewProps) => {
             </div>
 
             <div className="mt-8 flex justify-end pb-12">
-              <Button className="px-4 sm:px-6 lg:px-8">
+              <Button
+                onClick={() =>
+                  createPaymentSession({ configId: configuration.id })
+                }
+                className="px-4 sm:px-6 lg:px-8"
+              >
                 Check out
                 <ArrowRight className="ml-1.5 inline h-4 w-4" />
               </Button>
