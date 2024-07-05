@@ -9,6 +9,8 @@ import { cn, formatPrice } from "@/lib/utils";
 import { ArrowRight, Check } from "lucide-react";
 import { BASE_PRICE, PRODUCT_PRICES } from "@/config/products";
 import { Button } from "./ui/button";
+import { useMutation } from "@tanstack/react-query";
+import { createCheckoutSession } from "@/app/configure/preview/actions";
 
 interface DesignPreviewProps {
   configuration: Configuration;
@@ -23,6 +25,11 @@ const DesignPreview = ({ configuration }: DesignPreviewProps) => {
   if (material === "polycarbonate")
     totalPrice += PRODUCT_PRICES.material.polycarbonate;
   if (finish === "textured") totalPrice += PRODUCT_PRICES.finish.textured;
+
+  const { mutate: submit } = useMutation({
+    mutationKey: ["get-checkout-session"],
+    mutationFn: async () => createCheckoutSession({ configId: "fef" }),
+  });
 
   useEffect(() => {
     setShowConfetti(true);
