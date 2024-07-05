@@ -2,17 +2,20 @@
 
 import { Fragment, useEffect, useState } from "react";
 import Confetti from "react-dom-confetti";
-import Phone from "./Phone";
 import { Configuration } from "@prisma/client";
+import { ArrowRight, Check } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
+
+import Phone from "./Phone";
 import { COLORS, MODELS } from "@/validators/option-validator";
 import { cn, formatPrice } from "@/lib/utils";
-import { ArrowRight, Check } from "lucide-react";
 import { BASE_PRICE, PRODUCT_PRICES } from "@/config/products";
 import { Button } from "./ui/button";
-import { useMutation } from "@tanstack/react-query";
 import { createCheckoutSession } from "@/app/configure/preview/actions";
-import { useRouter } from "next/navigation";
 import { useToast } from "./ui/use-toast";
+import LoginModal from "./LoginModal";
 
 interface DesignPreviewProps {
   configuration: Configuration;
@@ -21,8 +24,11 @@ interface DesignPreviewProps {
 const DesignPreview = ({ configuration }: DesignPreviewProps) => {
   const router = useRouter();
   const { toast } = useToast();
-  const [showConfetti, setShowConfetti] = useState(false);
-  const { color, model, finish, material } = configuration;
+  const { user } = useKindeBrowserClient();
+  const [showConfetti, setShowConfetti] = useState<boolean>(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
+
+  const { id: configId, color, model, finish, material } = configuration;
   const tw = COLORS.find(({ value }) => value === color)?.tw;
   const { label: modelLabel } = MODELS.find(({ value }) => value === model)!;
   let totalPrice = BASE_PRICE;
@@ -46,6 +52,17 @@ const DesignPreview = ({ configuration }: DesignPreviewProps) => {
     },
   });
 
+  const handleCheckout = () => {
+    if (user) {
+      // create payment session
+      createPaymentSession({ configId });
+    } else {
+      // need to login
+      localStorage.setItem("configurationId", configId);
+      setIsLoginModalOpen(true);
+    }
+  };
+
   useEffect(() => {
     setShowConfetti(true);
   }, []);
@@ -61,6 +78,8 @@ const DesignPreview = ({ configuration }: DesignPreviewProps) => {
           config={{ elementCount: 200, spread: 90 }}
         />
       </div>
+
+      <LoginModal isOpen={isLoginModalOpen} setIsOpen={setIsLoginModalOpen} />
 
       <div className="mt-20 grid grid-cols-1 text-sm sm:grid-cols-12 sm:grid-rows-1 sm:gap-x-6 md:gap-x-8 lg:gap-x-12">
         <div className="sm:col-span-4 md:col-span-3 md:row-span-2 md:row-end-2">
@@ -140,12 +159,7 @@ const DesignPreview = ({ configuration }: DesignPreviewProps) => {
             </div>
 
             <div className="mt-8 flex justify-end pb-12">
-              <Button
-                onClick={() =>
-                  createPaymentSession({ configId: configuration.id })
-                }
-                className="px-4 sm:px-6 lg:px-8"
-              >
+              <Button onClick={handleCheckout} className="px-4 sm:px-6 lg:px-8">
                 Check out
                 <ArrowRight className="ml-1.5 inline h-4 w-4" />
               </Button>
