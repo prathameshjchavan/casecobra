@@ -1,3 +1,4 @@
+import StatusDropdown from "@/components/StatusDropdown";
 import {
   Card,
   CardContent,
@@ -136,7 +137,9 @@ const DashboardPage = async () => {
                       {order.user.email}
                     </div>
                   </TableCell>
-                  <TableCell className="hidden sm:table-cell">status</TableCell>
+                  <TableCell className="hidden sm:table-cell">
+                    <StatusDropdown id={order.id} orderStatus={order.status} />
+                  </TableCell>
                   <TableCell className="hidden md:table-cell">
                     {order.createdAt.toLocaleDateString()}
                   </TableCell>
