@@ -32,12 +32,12 @@ const StatusDropdown = ({ id, orderStatus }: StatusDropdownProps) => {
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="p-0">
+      <DropdownMenuContent className="z-[999999] mt-1 overflow-hidden rounded-md bg-white p-0 shadow-md border border-zinc-200">
         {Object.keys(LABEL_MAP).map((status) => (
           <DropdownMenuItem
             key={status}
             className={cn(
-              "flex cursor-default items-center gap-1 p-2.5 text-sm hover:bg-zinc-100",
+              "flex cursor-pointer items-center gap-1 rounded-none p-2.5 text-sm hover:bg-zinc-100",
               { "bg-zinc-100": orderStatus === status },
             )}
           >
