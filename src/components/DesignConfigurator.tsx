@@ -51,10 +51,10 @@ const DesignConfigurator = ({
     mutationFn: async (args: SaveConfigArgs) => {
       await Promise.all([saveConfiguration(), _saveConfig(args)]);
     },
-    onError: () => {
+    onError: (error) => {
       toast({
         title: "Something went wrong",
-        description: "There was an error on our end. Please try again.",
+        description: error.message,
         variant: "destructive",
       });
     },

@@ -10,12 +10,18 @@ export const changeOrderStatus = async ({
   id: string;
   newStatus: OrderStatus;
 }) => {
-  await db.order.update({
-    where: {
-      id,
-    },
-    data: {
-      status: newStatus,
-    },
-  });
+  try {
+    await db.order.update({
+      where: {
+        id,
+      },
+      data: {
+        status: newStatus,
+      },
+    });
+  } catch (error) {
+    throw new Error(
+      "There was an error updating the order status. Please try again.",
+    );
+  }
 };

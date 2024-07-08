@@ -13,6 +13,8 @@ import { cn } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
 import { changeOrderStatus } from "@/app/dashboard/actions";
 import { useRouter } from "next/navigation";
+import { startTransition, useOptimistic } from "react";
+import { toast } from "./ui/use-toast";
 
 interface StatusDropdownProps {
   id: string;
@@ -27,11 +29,26 @@ const LABEL_MAP: Record<keyof typeof OrderStatus, string> = {
 
 const StatusDropdown = ({ id, orderStatus }: StatusDropdownProps) => {
   const router = useRouter();
+  const [optimisticOrderStatus, changeOptimisticOrderStatus] = useOptimistic(
+    orderStatus,
+    (_, newState) => newState as OrderStatus,
+  );
   const { mutate, isPending } = useMutation({
     mutationKey: ["change-order-status"],
     mutationFn: changeOrderStatus,
-    onSuccess: () => router.refresh(),
+    onError: () => toast({
+      title: "Something went wrong",
+      description: "There was an error updating the order status. Please try again.",
+      variant: "destructive",
+    }),
+    onSettled: () => router.refresh(),
   });
+
+  const handleStatusChange = (status: OrderStatus) =>
+    startTransition(() => {
+      changeOptimisticOrderStatus(status);
+      mutate({ id, newStatus: status as OrderStatus });
+    });
 
   return (
     <DropdownMenu>
@@ -41,7 +58,7 @@ const StatusDropdown = ({ id, orderStatus }: StatusDropdownProps) => {
           variant="outline"
           className="flex w-52 items-center justify-between"
         >
-          {LABEL_MAP[orderStatus]}
+          {LABEL_MAP[optimisticOrderStatus]}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
@@ -51,14 +68,14 @@ const StatusDropdown = ({ id, orderStatus }: StatusDropdownProps) => {
             key={status}
             className={cn(
               "flex cursor-pointer items-center gap-1 rounded-none p-2.5 text-sm hover:bg-zinc-100",
-              { "bg-zinc-100": orderStatus === status },
+              { "bg-zinc-100": optimisticOrderStatus === status },
             )}
-            onClick={() => mutate({ id, newStatus: status as OrderStatus })}
+            onClick={() => handleStatusChange(status as OrderStatus)}
           >
             <Check
               className={cn(
                 "mr-2 h-4 w-4 text-primary",
-                orderStatus === status ? "opacity-100" : "opacity-0",
+                optimisticOrderStatus === status ? "opacity-100" : "opacity-0",
               )}
             />
             {LABEL_MAP[status as OrderStatus]}
